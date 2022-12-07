@@ -194,10 +194,13 @@ void User::SaveToFile(const string& FileName)
     }
     OutFile.close();
 }
-
+/*该函数返回一个指向用户类的指针。*/
 const User* User::GetUser(const string& Name, const string& Password){
+    /*初始的时候该指针为空。*/
     const User* Current = nullptr;
+    /*遍历整个用户列表来寻找该用户是否存在。*/
     for (unsigned int i  = 0; i < m_UserList.size(); i++) {
+        /*如果名字能对的上并且密码输入正确，那就将指针指向该用户。*/
         if (m_UserList[i]->GetName() == Name && m_UserList[i]->TestPassword(Password)) {
             Current = m_UserList[i];
             m_LoginedUser = m_UserList[i];
@@ -205,7 +208,6 @@ const User* User::GetUser(const string& Name, const string& Password){
         }
     }
     return Current;
-
 }
 
 const User* User::GetUser(const string& Name) {
