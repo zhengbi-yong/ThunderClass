@@ -21,11 +21,8 @@
 #include "Constant.h"
 #include <queue>
 using namespace std;
-
 /*************************************************************************
-【类名】Audio
-【功能】音频类，用于录制和播放音频队列
-【接口说明】
+音频类，用于录制和播放音频队列
     函数Audio                     构造函数
     函数~Audio                    析构函数
     函数StartRec                  开始录音
@@ -37,81 +34,56 @@ using namespace std;
     函数Clear                     清除全部已录制的音频和待播放的音频
     函数RecordFramesCount         已录制音频队列里的音频数量(单位为秒，整数)
     函数ToPlayFramesCount         待播放音频队列里的音频数量(单位为秒，整数)
-    常引用IsRecording              表示是否正在录音
-    常引用IsPlaying                表示是否正在播放
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
+    常引用IsRecording             表示是否正在录音
+    常引用IsPlaying               表示是否正在播放
 *************************************************************************/
 class Audio {
 public:
     //构造函数
     Audio();
-
     //析构函数
     ~Audio();
-
     //禁用拷贝构造函数
     Audio(const Audio&) = delete;
-
     //禁用赋值运算符
     Audio& operator= (const Audio&) = delete;
-
     //开始录音
     void StartRec();
-
     //停止录音
     void StopRec();
-
     //开始播放
     void StartPlay();
-
     //停止播放
     void StopPlay();
-
     //获取并删除最早录制的一段音频
     bool GetAndRemoveFirstRecorded(AudioFrame& Frame);
-
     //向待播放队列最后追加一段音频
     void AppendFrameToPlay(const AudioFrame& Frame);
-
     //清除全部已录制的音频和待播放的音频
     void Clear();
-
     //返回已录制音频队列里的音频数量(单位为秒，整数)
     unsigned int RecordFramesCount();
-
     //待播放音频队列里的音频数量(单位为秒，整数)
     unsigned int ToPlayFramesCount();
-
     //常引用IsRecording表示是否正在录音
     const bool& IsRecording;
-
     //常引用IsPlaying表示是否正在播放
     const bool& IsPlaying;
 private:
     //录音线程句柄
     HANDLE m_hRecThread;
-
     //播放线程句柄
     HANDLE m_hPlayThread;
-
     //录音线程函数
     static DWORD WINAPI RecThread(LPVOID lpParameter);
-
     //播放线程句柄
     static DWORD WINAPI PlayThread(LPVOID lpParameter);
-
     //已录制音频队列
     queue<AudioFrame> m_RecordedFrames;
-
     //待播放音频队列
     queue<AudioFrame> m_ToPlayFrames;
-
     //是否正在录音
     bool m_bIsRecording;
-
     //是否正在播放
     bool m_bIsPlaying;
 };

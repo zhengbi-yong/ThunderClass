@@ -20,26 +20,22 @@ class AdminWindow : public QDialog
 public:
     explicit AdminWindow(QWidget *parent = nullptr);
     ~AdminWindow();
+
 private slots:
     //void TimerEvent();
-
-    //6-14，添加槽函数
+    //槽函数
     void ShowUserInfo();
     void on_btnAddUser_clicked();
     void on_btnDeleteUser_clicked();
     void on_btnChangeUser_clicked();
-
     //void showEvent(QShowEvent* event);
 
 private:
     Ui::AdminWindow *ui;
-
     //业务流程类对象指针
     AdminProcess* m_pProc;
-
     //来源网络：https://blog.csdn.net/qq769651718/article/details/79357938
     QStandardItemModel* model;
-
     QTimer* m_pTimer;
 };
 

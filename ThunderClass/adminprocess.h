@@ -21,10 +21,9 @@ using namespace  std;
 *************************************************************************/
 class AdminProcess
 {
+
 public:
     AdminProcess();
-
-    //6-14
     //增加用户
     bool AddUser(const string& Name, const string& Password, const string &Type);
     //删除用户
@@ -40,7 +39,6 @@ public:
     string GetNthType(unsigned int n);
     unsigned int GetUserCount();
     */
-
     //获取第n个用户的信息，用引用传参
     bool GetNthUserInfo(unsigned int n, string& Name, string& Password, string& Type);
 

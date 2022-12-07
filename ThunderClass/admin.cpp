@@ -31,9 +31,7 @@ Admin::Admin():User("Admin", "Admin", "Admin") {
 【更改记录】2020-5-15 由范静涛增加注释
 *************************************************************************/
 bool Admin::AddUser(const string &Name, const string &Password, const string &Type){
-
     return User::AddUser(Name, Password, Type);
-
 }
 
 //6-14

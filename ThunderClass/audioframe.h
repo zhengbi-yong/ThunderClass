@@ -17,19 +17,14 @@
 
 #ifndef AUDIOFRAME_H
 #define AUDIOFRAME_H
-
 #include <Windows.h>
-
-//如果使用vs，请取消 下一行的注释
+//如果使用vs，请取消下一行的注释
 //#pragma comment(lib, "winmm.lib")
-
 //用于友元的前置类声明
 class Audio;
 
 /*************************************************************************
-【类名】AudioFrame
-【功能】音频帧类，用于构造、存储一段音频
-【接口说明】
+音频帧类，用于构造、存储一段音频
     构造函数AudioFrame()构造一个空的音频帧，可容纳数据10k字节
     构造函数AudioFrame(const BYTE* pInBuffer, unsigned int Length)构造特定音频数据的音频帧
     析构~AudioFrame();
@@ -39,10 +34,6 @@ class Audio;
     静态常量结构体FORMAT，采集/播放音频的格式
     数据区指针pBuffer的常引用
     音频头的常引用Header
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
 *************************************************************************/
 class AudioFrame {
 public:

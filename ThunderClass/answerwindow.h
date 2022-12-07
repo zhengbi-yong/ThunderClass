@@ -30,13 +30,11 @@ private:
     Ui::AnswerWindow *ui;
     //业务流程类对象指针
     StudentProcess* m_pProc;
-
-    //6-18，增加记录窗口开始和结束时间
+    //记录窗口开始和结束时间
     time_t m_tBeginTime;
     time_t m_tEndTime;
-
-    bool m_bIsRecvAll;  //6-17，看学生端接收信息是不是发送给全班的
-    bool m_bIsSubmit;   //6-21,是否已经回答
+    bool m_bIsRecvAll;  //看学生端接收信息是不是发送给全班的
+    bool m_bIsSubmit;   //是否已经回答
 };
 
 #endif // ANSWERWINDOW_H

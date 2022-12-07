@@ -21,10 +21,8 @@
 class Admin : public User
 {
 public:
-    //新增用户
+    //添加用户
     bool AddUser(const string& Name, const string& Password, const string& Type) override;
-
-    //6-14
     //删除一个用户名为Name的用户
     bool DeleteUser(const string &Name) override;
     /*

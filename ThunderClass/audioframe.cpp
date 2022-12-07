@@ -18,7 +18,6 @@
 
 //类静态成员初始化，表示数据区默认大小10k字节
 const unsigned int AudioFrame::BUF_SZIE = 1024 * 10;
-
 //类静态成员初始化，表示录音和播放的音频格式
 //请注意，这种结构体作为静态成员的初始化形式比较少见，初始化要加.成员名
 const WAVEFORMATEX AudioFrame::FORMAT = {
@@ -31,19 +30,9 @@ const WAVEFORMATEX AudioFrame::FORMAT = {
     .cbSize = 0                    //FORMAT.cbSize, 一般为0
 };
 
-/*************************************************************************
-【函数名称】AudioFrame::AudioFrame
-【函数功能】构造函数，创建一个头、一个BUF_SIZE大小的数据区，两者关联
-【参数】无
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*构造函数，创建一个头、一个BUF_SIZE大小的数据区，两者关联。*/
 AudioFrame::AudioFrame(): pBuffer(m_pBuffer), Header(m_Header) {
     m_pBuffer = new BYTE[BUF_SZIE];
-
     m_Header.lpData = (LPSTR)m_pBuffer;
     m_Header.dwBufferLength = BUF_SZIE;
     m_Header.dwBytesRecorded = 0L;
@@ -52,20 +41,11 @@ AudioFrame::AudioFrame(): pBuffer(m_pBuffer), Header(m_Header) {
     m_Header.dwLoops = 1L;
 }
 
-/*************************************************************************
-【函数名称】AudioFrame::AudioFrame（const BYTE* pInBuffer, unsigned int Length）
-【函数功能】构造函数，创建一个头、一个Legnth大小的数据区，两者关联，数据区里的数据被填充为pInBuffer所知空间里的数据
-【参数】pInBuffer：输入参数，指向音频数据；Length：输入参数，表示音频数据长度
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*构造函数，创建一个头、一个Legnth大小的数据区，两者关联，数据区里的数据被填充为pInBuffer所知空间里的数据。
+  pInBuffer：输入参数，指向音频数据；Length：输入参数，表示音频数据长度。*/
 AudioFrame::AudioFrame(const BYTE* pInBuffer, unsigned int Length): pBuffer(m_pBuffer), Header(m_Header) {
     m_pBuffer = new BYTE[Length];
     memcpy(m_pBuffer, pInBuffer, Length);
-
     m_Header.lpData = (LPSTR)m_pBuffer;
     m_Header.dwBufferLength = Length;
     m_Header.dwBytesRecorded = Length;
@@ -74,16 +54,7 @@ AudioFrame::AudioFrame(const BYTE* pInBuffer, unsigned int Length): pBuffer(m_pB
     m_Header.dwLoops = 1L;
 }
 
-/*************************************************************************
-【函数名称】AudioFrame::AudioFrame（const AudioFrame& Frame）
-【函数功能】拷贝构造函数，深拷贝
-【参数】Frame，输入参数，表示源对象
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*拷贝构造函数，深拷贝。Frame，输入参数，表示源对象。*/
 AudioFrame::AudioFrame(const AudioFrame& Frame):pBuffer(m_pBuffer), Header(m_Header) {
     m_Header = Frame.m_Header;
     m_pBuffer = new BYTE[m_Header.dwBufferLength];
@@ -91,16 +62,7 @@ AudioFrame::AudioFrame(const AudioFrame& Frame):pBuffer(m_pBuffer), Header(m_Hea
     m_Header.lpData = (LPSTR)m_pBuffer;
 }
 
-/*************************************************************************
-【函数名称】AudioFrame::operator=
-【函数功能】赋值运算符函数，深拷贝
-【参数】Frame，输入参数，表示源对象
-【返回值】被赋值对象的引用
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*赋值运算符函数，深拷贝。Frame，输入参数，表示源对象。*/
 AudioFrame& AudioFrame::operator= (const AudioFrame& Frame) {
     if (this != &Frame) {
         delete[] m_pBuffer;
@@ -112,16 +74,7 @@ AudioFrame& AudioFrame::operator= (const AudioFrame& Frame) {
     return *this;
 }
 
-/*************************************************************************
-【函数名称】AudioFrame::~AudioFrame
-【函数功能】析构函数
-【参数】无
-【返回值】析构函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-5
-【更改记录】
-    2020-05-07 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*析构函数。*/
 AudioFrame::~AudioFrame() {
     delete[] m_pBuffer;
 }
