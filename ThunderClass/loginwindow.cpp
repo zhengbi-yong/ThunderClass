@@ -9,8 +9,7 @@ LoginWindow::LoginWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint);
-
-    //6-19,设置圆角输入框、按钮
+    //设置圆角输入框、按钮
     ui->edtName->setStyleSheet("border:2px groove gray;border-radius:10px;padding:2px 4px");
     ui->edtPassword->setStyleSheet("border:2px groove gray;border-radius:10px;padding:2px 4px");
     ui->btnExit->setStyleSheet("border:2px groove gray;border-radius:10px;padding:2px 4px");
@@ -33,13 +32,11 @@ void LoginWindow::on_btnLogin_clicked()
     case LR_NOUSER :
         msgBox.setText("登录失败");
         msgBox.exec();
-
-        //6-15，如果三次登陆失败，退出登录界面
+        //如果登陆失败了三次，退出登录界面
         if (Proc.IsNoUserThreeTimes())
         {
             this->close();
         }
-
         break;
     case LR_ADMIN :
         this->setWindowOpacity(0.0);

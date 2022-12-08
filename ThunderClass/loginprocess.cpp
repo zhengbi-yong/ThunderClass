@@ -10,7 +10,6 @@ LoginProcess::LoginProcess()
     User::LoadFromFile("UserInformation.txt");
 }
 
-
 LoginResult LoginProcess::Login(const QString& UserName, const QString& Password){
     /*通过用户名和密码返回一个指向user的指针。*/
     const User* pCurrentUser = User::GetUser(UserName.toStdString(), Password.toStdString());
@@ -31,7 +30,6 @@ LoginResult LoginProcess::Login(const QString& UserName, const QString& Password
         return LR_STUDENT;
     }
 }
-
 
 //判断登录过程中是否错误了三次
 bool LoginProcess::IsNoUserThreeTimes()

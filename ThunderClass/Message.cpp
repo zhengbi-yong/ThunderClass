@@ -15,34 +15,16 @@ using namespace std;
 
 //消息的开始符和结尾符
 const unsigned char Message::START_BYTE = 0xFF;
-const unsigned char Message::STOP_BYTE = 0xFE;
+const unsigned char Message::STOP_BYTE  = 0xFE;
 
-/*************************************************************************
-【函数名称】Message::Message
-【函数功能】构造函数，构造空消息
-【参数】无
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*构造函数，构造空消息。*/
 Message::Message():Size(m_uSize), IsValid(m_bIsValid), Data(m_ucData) {
     m_uSize = 0;
     m_ucData = nullptr;
     m_bIsValid = false;
 }
 
-/*************************************************************************
-【函数名称】Message::Message(MessageType type, const unsigned char* Body, unsigned int BodySize)
-【函数功能】构造函数，通过指定消息类型，未编码的消息体和长度构造指定消息
-【参数】全部未入口参数，Type表示消息类型，Body为未编码为消息的原始数据序列，BodySize为原始数据序列长度
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*构造函数，通过指定消息类型，未编码的消息体和长度构造指定消息。*/
 Message::Message(MessageType type, const unsigned char* Body, unsigned int BodySize):Size(m_uSize), IsValid(m_bIsValid), Data(m_ucData){
     m_uSize = 0;
     m_ucData = nullptr;
@@ -71,16 +53,7 @@ Message& Message::operator=(const Message& aMessage){
     return *this;
 }
 
-/*************************************************************************
-【函数名称】Message::~Message
-【函数功能】析构函数
-【参数】无
-【返回值】析构函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*析构函数。*/
 Message::~Message(){
     Clear();
 }
@@ -101,16 +74,7 @@ MessageType Message::Type() const {
     }
 }
 
-/*************************************************************************
-【函数名称】Message::Clear
-【函数功能】清空消息数据区
-【参数】无
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*清空消息数据区。*/
 void Message::Clear(){
     //释放消息数据区
     if (m_ucData != nullptr){
@@ -123,21 +87,11 @@ void Message::Clear(){
     m_uSize = 0;
 }
 
-/*************************************************************************
-【函数名称】Message::Append
-【函数功能】向消息数据区增加一段数据，并判定是否为一个完整的、可用的消息
-【参数】
+/*向消息数据区增加一段数据，并判定是否为一个完整的、可用的消息
     入口参数，Input参数是要追加的字节序列
     入口参数，Length参数是要追加的长度
     出口参数，RemainLength是追加后Input缓冲区剩余的字节数（追加后不能构成完整消息，则剩余0；如构成完整消息后，还有剩余，则修改remain的值）
-【返回值】
-    返回值为ture，表示已经构成完整消息
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-    2020-05-19 范静涛在闭浩扬同学建议下优化了逻辑，减少重复搜索次数，降低时间复杂度
-*************************************************************************/
+*/
 bool Message::Append(const unsigned char* Input, unsigned int Length, unsigned int& RemainLength){
     //如果当前消息已经是一个完整的有头有尾的消息了，那么不可再新增加数据
     if (m_bIsValid) {
@@ -229,108 +183,47 @@ bool Message::Append(const unsigned char* Input, unsigned int Length, unsigned i
     }
 }
 
-/*************************************************************************
-【函数名称】Message::MakeExitMsg
-【函数功能】产生一个断开网络连接的退出消息
-【参数】无
-【返回值】退出消息对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*产生一个断开网络连接的退出消息。*/
 Message Message::MakeExitMsg(){
     return Message(MSG_EXIT, nullptr, 0);
 }
 
-/*************************************************************************
-【函数名称】Message::MakeIdleMsg
-【函数功能】产生一个空闲消息
-【参数】无
-【返回值】空闲消息对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*产生一个空闲消息。*/
 Message Message::MakeIdleMsg() {
     return Message(MSG_IDLE, nullptr, 0);
 }
 
-//6-19
-/*************************************************************************
-【函数名称】Message::MakeSoonExitMsg
-【函数功能】制造一个即将下课的消息
-【参数】无
-【返回值】即将下课消息对象
-【开发者及日期】曹展翔，2020-6-19
-【更改记录】2020-6-21 由曹展翔增加注释
-*************************************************************************/
+/*制造一个即将下课的消息。*/
 Message Message::MakeSoonExitMsg() {
     return Message(MSG_SOONEXIT, nullptr, 0);
 }
 
-
-/*************************************************************************
-【函数名称】Message::FromString
-【函数功能】产生一个文本消息
-【参数】入口参数，表示文本
-【返回值】文本消息对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*产生一个文本消息。*/
 Message Message::FromString(const string& aString) {
     return Message(MSG_STRING, (const unsigned char*)aString.c_str(), aString.length());
 }
 
-//6-17
-/*************************************************************************
-【函数名称】Message::FromAnsw
-【函数功能】产生一个回答信息
-【参数】入口参数，表示文本
-【返回值】答案消息对象
-【开发者及日期】曹展翔，2020-6-17
-【更改记录】2020-6-21 由曹展翔增加注释
-*************************************************************************/
+/*产生一个回答信息。*/
 Message Message::FromAnsw(const string& aString) {
     return Message(MSG_ANSW, (const unsigned char*)aString.c_str(), aString.length());
 }
 
-//6-18
-/*************************************************************************
-【函数名称】Message::FromActProp
-【函数功能】产生一个注意力比例信息
-【参数】入口参数，表示文本
-【返回值】注意力比例消息对象
-【开发者及日期】曹展翔，2020-6-17
-【更改记录】2020-6-21 由曹展翔增加注释
-*************************************************************************/
+/*产生一个注意力比例信息。*/
 Message Message::FromActProp(const string& aString) {
     return Message(MSG_ACTPROP, (const unsigned char*)aString.c_str(), aString.length());
 }
 
-//6-17
-/*************************************************************************
-【函数名称】Message::FromChoice
-【函数功能】产生一个选择题信息
-【参数】入口参数，依次表示题干加四个选项
-【返回值】选择题消息对象
-【开发者及日期】曹展翔，2020-6-17
-【更改记录】2020-6-21 由曹展翔增加注释
-*************************************************************************/
+/*产生一个选择题信息。*/
 Message Message::FromChoice(const string& Ques, const string& OptionA, const string& OptionB, const string& OptionC, const string& OptionD)
 {
-    //记下length，
+    //记下length
     unsigned int QuesLen = Ques.length();
     unsigned int OptALen = OptionA.length();
     unsigned int OptBLen = OptionB.length();
     unsigned int OptCLen = OptionC.length();
     unsigned int OptDLen = OptionD.length();
-    unsigned int TotalLenth = 5 * sizeof(unsigned int) + QuesLen + OptALen + OptBLen + OptCLen + OptDLen;   //总长度
+    unsigned int TotalLenth = 5 * sizeof(unsigned int) + QuesLen + OptALen + OptBLen + OptCLen + OptDLen;//总长度
     unsigned char* pBody = new unsigned char[TotalLenth];
-
     //拷贝内存，地址偏移，转换为字符串指针
     memcpy((void*)pBody, (void*)(&QuesLen), sizeof(unsigned int));
     memcpy((void*)(pBody + 1 * sizeof(unsigned int)), (void*)(Ques.c_str()), QuesLen);
@@ -354,31 +247,12 @@ Message Message::FromChoice(const string& Ques, const string& OptionA, const str
     return AMessage;
 }
 
-
-/*************************************************************************
-【函数名称】Message::FromAudioFrame
-【函数功能】产生一个音频帧消息
-【参数】入口参数，表示音频帧
-【返回值】音频消息对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*产生一个音频帧消息。*/
 Message Message::FromAudio(const AudioFrame& aFrame) {
     return Message(MSG_AUDIO, aFrame.pBuffer, aFrame.Header.dwBytesRecorded);
 }
 
-/*************************************************************************
-【函数名称】Message::FromJpgImage
-【函数功能】产生一个jpg图像
-【参数】入口参数，表示要压缩为jpg的Image对象
-【返回值】jpg图图像消息对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*产生一个jpg图像。*/
 Message Message::FromImageJpg(const Image& anImage) {
     char* JpgData = nullptr;
     unsigned int JpgSize = 0;
@@ -390,16 +264,7 @@ Message Message::FromImageJpg(const Image& anImage) {
     return ret;
 }
 
-/*************************************************************************
-【函数名称】Message::ToString
-【函数功能】从文本消息还原一个文本对象
-【参数】入口参数，要还原的消息
-【返回值】文本对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*从文本消息还原一个文本对象。*/
 string Message::ToString(const Message& Msg){
     //开辟临时缓冲区
     unsigned char* pBuffer = new unsigned char[Msg.Size];
@@ -421,16 +286,7 @@ string Message::ToString(const Message& Msg){
     return res;
 }
 
-/*************************************************************************
-【函数名称】Message::ToAudioFrame
-【函数功能】从音频消息还原一个音频帧对象
-【参数】入口参数，要还原的消息
-【返回值】音频帧对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*从音频消息还原一个音频帧对象。*/
 AudioFrame Message::ToAudioFrame(const Message& Msg) {
     //开辟临时缓冲区
     unsigned char* pBuffer = new unsigned char[Msg.Size];
@@ -439,7 +295,6 @@ AudioFrame Message::ToAudioFrame(const Message& Msg) {
     unsigned int length;
     //执行解码
     bool IsDecoded = Msg.Decode(type, pBuffer, length);
-
     //解码失败或者不是音频消息，抛出异常
     if (!IsDecoded || Msg.Type() != MSG_AUDIO) {
         delete[] pBuffer;
@@ -452,17 +307,7 @@ AudioFrame Message::ToAudioFrame(const Message& Msg) {
     return res;
 }
 
-/*************************************************************************
-【函数名称】Message::ToJpgData
-【函数功能】从jpg图像消息还原一个jpg内存出具看
-【参数】入口参数，Msg要还原的消息；出口参数，ppJpgData存放数据区指针的指针变量；出口参数，pJpgSize指向jpg数据区长度的指针变量
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【特别说明】*ppJpgData需要在调用此函数后手动释放，否则会内存泄漏
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*从jpg图像消息还原一个jpg。*/
 void Message::ToJpgData(const Message& Msg, char** ppJpgData, unsigned int* pJpgSize){
     //开辟临时缓冲区
     unsigned char* pBuffer = new unsigned char[Msg.Size];
@@ -482,16 +327,7 @@ void Message::ToJpgData(const Message& Msg, char** ppJpgData, unsigned int* pJpg
     delete[] pBuffer;
 }
 
-/*************************************************************************
-【函数名称】Message::ToStudentNameAndPassword
-【函数功能】从学生登录消息还原用户名密码
-【参数】入口参数，Msg要还原的消息；出口参数，Name用户名；出口参数，Password密码
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*从学生登录消息还原用户名密码。*/
 void Message::ToStudentNameAndPassword(const Message& Msg, string& Name, string& Password){
     //开辟临时缓冲区
     unsigned char* pBuffer = new unsigned char[Msg.Size];
@@ -515,15 +351,7 @@ void Message::ToStudentNameAndPassword(const Message& Msg, string& Name, string&
     delete[] pBuffer;
 }
 
-//6-17
-/*************************************************************************
-【函数名称】Message::ToChoice
-【函数功能】从选择题消息还原题干和选项
-【参数】入口参数，分别表示待转换的消息类对象，然后是需要传值的题干和四个选项的引用
-【返回值】无
-【开发者及日期】曹展翔，2020-6-17
-【更改记录】2020-6-21 由曹展翔增加注释
-*************************************************************************/
+/*从选择题消息还原题干和选项。*/
 void Message::ToChoice(const Message& Msg, string& Ques, string& OptionA, string& OptionB, string& OptionC, string& OptionD)
 {
     //开辟临时缓冲区
@@ -538,7 +366,6 @@ void Message::ToChoice(const Message& Msg, string& Ques, string& OptionA, string
         delete[] pBuffer;
         throw(invalid_argument("Message type is not MSG_CHOICE"));
     }
-
     //解码
     unsigned int QuesLen = 0;
     memcpy((char*)&QuesLen, pBuffer, sizeof(QuesLen));
@@ -564,17 +391,7 @@ void Message::ToChoice(const Message& Msg, string& Ques, string& OptionA, string
     delete[] pBuffer;
 }
 
-
-/*************************************************************************
-【函数名称】Message::Encode
-【函数功能】将任意数据区编码为特定类型的消息
-【参数】全部为入口参数，Type为消息类型，Input为待编码数据区，Length为待编码数据区长度
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*将任意数据区编码为特定类型的消息。*/
 void Message::Encode(MessageType Type, const unsigned char* Input, unsigned int Length){
     //计算临时缓冲区最大需要长度，每个Input中的1字节都展开为2个字节（0x80或开始符或结尾符号）,加上开始和结尾符2字节，加上Type的1个字节
     unsigned int TempSize = 2 * Length + 2 + 1;
@@ -610,7 +427,6 @@ void Message::Encode(MessageType Type, const unsigned char* Input, unsigned int 
     j++;
     //清空消息数据区
     Clear();
-
     //消息长度为编码后获得的字节数
     m_uSize = j;
     //开辟消息数据区
@@ -623,16 +439,7 @@ void Message::Encode(MessageType Type, const unsigned char* Input, unsigned int 
     delete[] TempData;
 }
 
-/*************************************************************************
-【函数名称】Message::Dencode
-【函数功能】将消息解码为类型、解码后的数据区、解码后的数据区长度
-【参数】全部为出口参数，Type为消息类型，Output为解码后的数据区，Length为解码后数据区长度
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*将消息解码为类型、解码后的数据区、解码后的数据区长度。*/
 bool Message::Decode(MessageType& Type, unsigned char* Output, unsigned int& Length) const{
     //不是完整消息不能解码
     if (!this->IsValid) {
@@ -661,20 +468,12 @@ bool Message::Decode(MessageType& Type, unsigned char* Output, unsigned int& Len
     return true;
 }
 
-/*************************************************************************
-【函数名称】Message::SearchTag
-【函数功能】在消息数据区中搜索特定的Tag(消息头0xFF或消息尾0xFE)
-【参数】
+/*在消息数据区中搜索特定的Tag(消息头0xFF或消息尾0xFE)
     入口参数，Tag表示要搜索的特定Tag(消息头0xFF或消息尾0xFE)
     入口参数，Buffer要搜索的区域指针
     入口参数，Length要搜索的长度
     出口参数，Pos找到的位置，但返回值为false是此参数无效
-【返回值】true表示找到了，false表示未找到
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+*/
 bool Message::SearchTag(unsigned char Tag, const unsigned char* Buffer, unsigned int Length, unsigned int& Pos){
     //长度小于1字节，不可能找到Tag
     if (Length == 0) {
