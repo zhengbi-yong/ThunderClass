@@ -13,7 +13,6 @@ StudentWindow::StudentWindow(QWidget *parent) :
 
     m_pAnswerWindow = nullptr;
     this->setWindowFlags(Qt::Dialog | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-
     //建立信号和槽的连接关系
     //一定要在m_pProc构造后才能建立
     //connect是建立联系，而非调用槽函数
@@ -27,8 +26,8 @@ StudentWindow::StudentWindow(QWidget *parent) :
     m_pTimer = new QTimer();
     m_pTimer->setInterval(200);
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(TimerEvent()));
-    m_pTimer->start();      //6-18，200ms发一次，start里不用加200？
-    //只显示关闭窗口按钮，没有？按钮
+    m_pTimer->start();//200ms发一次
+    //只显示关闭窗口按钮
     this->setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint);
     //设定控件是否可用
     UpdateControlEnabled(false);
@@ -75,9 +74,8 @@ void StudentWindow::UpdateControlEnabled(bool IsInClass) {
 void StudentWindow::on_btnEnterClass_clicked()
 {
     QMessageBox msgBox;
-    m_uActiveTime = 0;  //6-18,重新计时
-    m_uInActiveTime = 0;    //6-18，重新计时
-
+    m_uActiveTime = 0;   //重新计时
+    m_uInActiveTime = 0; //重新计时
     //IP不为空在能进入课堂
     if (!ui->edtIP->text().isEmpty()) {
         //更新界面控件状态为非上课状态
@@ -89,7 +87,7 @@ void StudentWindow::on_btnEnterClass_clicked()
         //尝试进入课堂
         if (!m_pProc->EnterClass(ui->edtIP->text()))
         {
-            msgBox.setText("连接失败！");    //6-19，添加提示
+            msgBox.setText("连接失败！");//添加提示
             msgBox.exec();
         }
     }
@@ -97,15 +95,11 @@ void StudentWindow::on_btnEnterClass_clicked()
 
 void StudentWindow::on_btnExitClass_clicked()
 {
-    //6-18增加了注意力信息的发送
+    //注意力信息发送
     double ActiveProp = 100.0 * m_uActiveTime / (1.0 * (m_uActiveTime + m_uInActiveTime));
-
     QString qsActiveProp = QString::number(ActiveProp, 'f', 2);
-
     m_pProc->SendActProp(qsActiveProp);
-
-    Sleep(SLEEPMS);    //6-18,为了让消息发出去，或许可以休眠更短？
-
+    Sleep(SLEEPMS);
     m_pProc->ExitClass();
 }
 
@@ -156,15 +150,11 @@ void StudentWindow::ClassExited(){
     UpdateControlEnabled(false);
 }
 
-//6-19
 //收到即将退出课堂的消息
 void StudentWindow::RecvSoonExit()
 {
-    //6-18增加了注意力信息的发送
     double ActiveProp = 100.0 * m_uActiveTime / (1.0 * (m_uActiveTime + m_uInActiveTime));
-
     QString qsActiveProp = QString::number(ActiveProp, 'f', 2);
-
     m_pProc->SendActProp(qsActiveProp);
 }
 
@@ -174,24 +164,20 @@ void StudentWindow::RecvChat(QString Msg){
     ui->cmbChatList->setCurrentIndex(0);
 }
 
-//6-16
 //收到题目消息
 void StudentWindow::RecvQues(QString Ques)
 {
     m_pAnswerWindow = new AnswerWindow(this, m_pProc, false, Ques);
-
     m_pAnswerWindow->exec();
     delete m_pAnswerWindow;
     m_pAnswerWindow = nullptr;
 
 }
 
-//6-17
 //收到选择题消息
 void StudentWindow::RecvChoice(QString Ques, QString OptionA, QString OptionB, QString OptionC, QString OptionD)
 {
     m_pAnswerWindow = new AnswerWindow(this, m_pProc, true, Ques, OptionA, OptionB, OptionC, OptionD);
-
     m_pAnswerWindow->exec();
     delete m_pAnswerWindow;
     m_pAnswerWindow = nullptr;

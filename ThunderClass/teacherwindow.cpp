@@ -9,12 +9,9 @@ TeacherWindow::TeacherWindow(QWidget *parent) :
     ui(new Ui::TeacherWindow){
     ui->setupUi(this);
     m_pProc = new TeacherProcess(this);
-
-    UpdateControlEnabled(false);    //6-18，设定按钮的上课状态为否
-
-    m_pQuestionWindow = nullptr;    //6-16
-
-    //设置一些按钮不可用---------------------------------------------------------------
+    UpdateControlEnabled(false);    //设定按钮的上课状态为否
+    m_pQuestionWindow = nullptr;
+    //设置一些按钮不可用
     //建立信号和槽的连接关系
     //一定要在m_pProc构造后才能建立
     //connect是建立联系，而非调用槽函数
@@ -23,8 +20,7 @@ TeacherWindow::TeacherWindow(QWidget *parent) :
     connect(m_pProc, SIGNAL(RecvStudentLogin(QString)), this, SLOT(RecvStudentLogin(QString)));
     connect(m_pProc, SIGNAL(RecvStudentLogout(QString)), this, SLOT(RecvStudentLogout(QString)));
     connect(m_pProc, SIGNAL(RecvChat(QString, QString)), this, SLOT(RecvChat(QString, QString)));
-    connect(m_pProc, SIGNAL(RecvAnsw(QString, QString)), this, SLOT(RecvAnswer(QString, QString)));   //6-17
-
+    connect(m_pProc, SIGNAL(RecvAnsw(QString, QString)), this, SLOT(RecvAnswer(QString, QString)));
     this->setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint);
 }
 
@@ -35,8 +31,7 @@ TeacherWindow::~TeacherWindow(){
     disconnect(m_pProc, SIGNAL(RecvStudentLogin(QString)), this, SLOT(RecvStudentLogin(QString)));
     disconnect(m_pProc, SIGNAL(RecvStudentLogout(QString)), this, SLOT(RecvStudentLogout(QString)));
     disconnect(m_pProc, SIGNAL(RecvChat(QString, QString)), this, SLOT(RecvChat(QString, QString)));
-    disconnect(m_pProc, SIGNAL(RecvAnsw(QString, QString)), this, SLOT(RecvAnswer(QString, QString)));   //6-17
-
+    disconnect(m_pProc, SIGNAL(RecvAnsw(QString, QString)), this, SLOT(RecvAnswer(QString, QString)));
     delete m_pProc;
     delete ui;
 }
@@ -55,8 +50,8 @@ void TeacherWindow::UpdateControlEnabled(bool IsInClass){
     ui->ckbVoiceShare->setEnabled(IsInClass);
     ui->ckbScreenShare->setEnabled(IsInClass);
     ui->edtChat->setEnabled(IsInClass);
-    ui->btnSendQues->setEnabled(IsInClass); //6-17
-    ui->btnRandQues->setEnabled(IsInClass); //6-17
+    ui->btnSendQues->setEnabled(IsInClass);
+    ui->btnRandQues->setEnabled(IsInClass);
 }
 
 void TeacherWindow::showEvent(QShowEvent* e) {
@@ -100,19 +95,16 @@ void TeacherWindow::on_ckbVoiceShare_clicked()
 
 void TeacherWindow::on_btnEndClass_clicked()
 {
-    //6-19，发送即将下课的信息
+    //发送即将下课的信息
     m_pProc->SendSoonExit();
-    Sleep(SLEEPMS);    //休眠1秒，等待学生的注意力消息
-
-    //6-18，传递事间列表的信息
+    Sleep(SLEEPMS);//休眠1秒，等待学生的注意力消息
+    //传递时间列表的信息
     vector<StuTimeInfo> TimeInfoList;
     m_pProc->GetTimeInfo(TimeInfoList);
-
     ActiveInfoWindow* pActInfoWin = new ActiveInfoWindow(this, TimeInfoList);
     pActInfoWin->exec();
     delete pActInfoWin;
     pActInfoWin = nullptr;
-
     m_pProc->EndClass();
 }
 
@@ -151,7 +143,6 @@ void TeacherWindow::RecvChat(QString Name, QString Msg){
         ui->cmbChatList->setCurrentIndex(0);
 }
 
-//6-16
 //收到答案
 void TeacherWindow::RecvAnswer(QString Name, QString Answ)
 {
@@ -161,7 +152,6 @@ void TeacherWindow::RecvAnswer(QString Name, QString Answ)
     }
 }
 
-//6-16
 //发送问题点击
 void TeacherWindow::on_btnSendQues_clicked()
 {
@@ -171,7 +161,6 @@ void TeacherWindow::on_btnSendQues_clicked()
     m_pQuestionWindow = nullptr;
 }
 
-//6-17
 //随机提问点击
 void TeacherWindow::on_btnRandQues_clicked()
 {

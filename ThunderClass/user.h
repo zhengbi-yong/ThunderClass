@@ -18,9 +18,7 @@
 using namespace std;
 
 /*************************************************************************
-【类名】User
-【功能】用于操作用户
-【接口说明】
+用于操作用户
     虚析构函数~User();
     拷贝构造函数User(const User& anUser);
     赋值运算符User& operator=(const User& anUser);
@@ -35,10 +33,9 @@ using namespace std;
     静态函数OfflineAllStudents使得所有学生用户对象离线
     静态常引用UserCount表示用户总个数
     常引用Type表示用户类型字串
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
 *************************************************************************/
 class User {
+
 public:
     //虚析构函数~User();
     virtual ~User();
@@ -78,6 +75,7 @@ public:
     static const unsigned int& UserCount;
     //常引用Type表示用户类型字串
     const string& Type;
+
 protected:
     //构造函数
     User(const string& Name, const string& Password, const string& Type);
@@ -87,6 +85,7 @@ protected:
     virtual bool AddUser(const string& Name, const string& Password, const string& Type);
     //删除一个用户
     virtual bool DeleteUser(const string& Name);
+
 private:
     //保存到文件流
     void SaveToFileStream(ofstream& OutFile) const;

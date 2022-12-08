@@ -12,16 +12,7 @@
 #include <windows.h>
 #include <QDebug>
 
-/*************************************************************************
-【函数名称】StudentProcess::StudentProcess
-【函数功能】构造函数
-【参数】入口参数，父对象指针，默认nullptr
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-12
-【更改记录】
-    2020-05-19 由范静涛删除界面空间指针参数，用信号实现界面更新
-    2020-05-19 由范静涛修正了未初始化消息接收处理线程句柄为nullptr的错误逻辑
-*************************************************************************/
+/*构造函数。*/
 StudentProcess::StudentProcess(QObject* Parent): QObject(Parent), IsInClass(m_bIsInClass)
 {
     //准备一个用于远程登录的消息，包含自己的用户名和密码
@@ -36,18 +27,10 @@ StudentProcess::StudentProcess(QObject* Parent): QObject(Parent), IsInClass(m_bI
     m_pVoicePlayer = new Audio();
     //初始化消息接收处理线程句柄为空
     m_hMsgReceiveThread = nullptr;
-
     qDebug("SP: Created");
 }
 
-/*************************************************************************
-【函数名称】StudentProcess::~StudentProcess
-【函数功能】析构函数
-【参数】无
-【返回值】析构函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-12
-【更改记录】
-*************************************************************************/
+/*析构函数。*/
 StudentProcess::~StudentProcess() {
     //退出课堂
     ExitClass();
@@ -59,40 +42,26 @@ StudentProcess::~StudentProcess() {
     qDebug("SP: Destroyed");
 }
 
-/*************************************************************************
-【函数名称】StudentProcess::EnterClass
-【函数功能】进入课堂
-【参数】入口参数，教师端IP地址
-【返回值】true表示当前连接状态（是否在课堂里）
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-12
-【更改记录】
-    2020-05-19 由范静涛修改未用信号实现界面更新
-*************************************************************************/
+/*进入课堂。*/
 bool StudentProcess::EnterClass(const QString& IP) {
     //如果已经进入课堂，则不执行任何操作
     if (m_bIsInClass) {
         return m_bIsInClass;
     }
-
     //客户端连接到服务器
     string IpStr = IP.toStdString();
     m_pClient->ConnectTo(IpStr, PORTNUM);
-
     //开始计时
     qDebug() << "SP: trying to connect to server @ " << QString::fromStdString(IpStr);
-
     DWORD BeginTime = GetTickCount();
     DWORD EndTime = BeginTime;
     do {
         //更新当前时间
         EndTime = GetTickCount();
-
-        //6-18，休眠一小段时间，防止跑崩了，来自李浦豪同志的建议
+        //休眠一小段时间，防止跑崩了，来自李浦豪同志的建议
         Sleep(SLEEPINWAITMS);
-
-    //30秒内未连接，则继续循环,6-18改为10秒,6-19又改回来了
+    //30秒内未连接，则继续循环
     }while(EndTime - BeginTime <= WAITFORCONNMS && !m_pClient->IsConnected);
-
     //连接失败，返回
     if (!m_pClient->IsConnected) {
         qDebug() << "SP: connect fail after " << EndTime - BeginTime << " ms";
@@ -100,7 +69,6 @@ bool StudentProcess::EnterClass(const QString& IP) {
         emit ClassExited();
         return false;
     }
-
     //更新为以进入课堂状态
     m_bIsInClass = true;
     //发出“进入课堂信号”
@@ -117,19 +85,10 @@ bool StudentProcess::EnterClass(const QString& IP) {
     m_pClient->Send(m_RemoteLoginMsg);
     //开始播放声音(如果从教师端收到了)
     m_pVoicePlayer->StartPlay();
-
     return m_bIsInClass;
 }
 
-/*************************************************************************
-【函数名称】StudentProcess::ExitClass
-【函数功能】退出课堂
-【参数】无
-【返回值】true表示当前连接状态（是否在课堂里）
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-12
-【更改记录】
-    2020-05-19 由范静涛修改未用信号实现界面更新
-*************************************************************************/
+/*退出课堂。*/
 bool StudentProcess::ExitClass() {
     //如果未在课堂中，检查是否消息接收处理线程自主退出了
     if (!m_bIsInClass) {
@@ -140,7 +99,6 @@ bool StudentProcess::ExitClass() {
         }
         return m_bIsInClass;
     }
-
     //断开与服务器连接
     m_pClient->DisConnect();
     //停止播放音频
@@ -162,14 +120,7 @@ bool StudentProcess::ExitClass() {
     return m_bIsInClass;
 }
 
-/*************************************************************************
-【函数名称】StudentProcess::Send
-【函数功能】向教师端发送文字消息
-【参数】入口参数，QString字符串
-【返回值】true表示当前连接状态（是否在课堂里）
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-12
-【更改记录】
-*************************************************************************/
+/*向教师端发送文字消息。*/
 bool StudentProcess::Send(const QString& Msg) {
     //不在课堂
     if (!m_bIsInClass) {
@@ -185,16 +136,7 @@ bool StudentProcess::Send(const QString& Msg) {
     return m_pClient->Send(Message::FromString(MsgStr));
 }
 
-//6-17
-//发送答案信息
-/*************************************************************************
-【函数名称】StudentProcess::SendAnsw
-【函数功能】向教师端发送答案消息
-【参数】入口参数，QString字符串
-【返回值】true表示当前连接状态（是否在课堂里）
-【开发者及日期】曹展翔 2020-6-17
-【更改记录】2020-6-21添加注释
-*************************************************************************/
+/*向教师端发送答案消息。*/
 bool StudentProcess::SendAnsw(const QString& Answ) {
     //不在课堂
     if (!m_bIsInClass) {
@@ -210,16 +152,7 @@ bool StudentProcess::SendAnsw(const QString& Answ) {
     return m_pClient->Send(Message::FromAnsw(AnswStr));
 }
 
-//6-17
-//发送注意力信息
-/*************************************************************************
-【函数名称】StudentProcess::SendAnsw
-【函数功能】向教师端发送注意力消息
-【参数】入口参数，QString字符串
-【返回值】true表示当前连接状态（是否在课堂里）
-【开发者及日期】曹展翔 2020-6-17
-【更改记录】2020-6-21添加注释
-*************************************************************************/
+/*向教师端发送注意力消息。*/
 bool StudentProcess::SendActProp(const QString& ActProp) {
     //不在课堂
     if (!m_bIsInClass) {
@@ -235,16 +168,7 @@ bool StudentProcess::SendActProp(const QString& ActProp) {
     return m_pClient->Send(Message::FromActProp(ActPropStr));
 }
 
-/*************************************************************************
-【函数名称】StudentProcess::MsgRecieveThread
-【函数功能】接收并处理消息的线程函数
-【参数】入口参数，表示线程所属的StudentProcess对象指针
-【返回值】无意义
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-12
-【更改记录】
-    2020-05-19 由范静涛修改未用信号实现界面更新
-    2020-05-19 由范静涛修正了jpg空间未释放的错误逻辑
-*************************************************************************/
+/*接收并处理消息的线程函数。*/
 DWORD WINAPI StudentProcess::MsgReceiveThread(LPVOID lpParameter) {
     //因为实参是StudentProcess*，所以可以强制类型装换
     StudentProcess* pProcess = (StudentProcess*)lpParameter;
@@ -275,12 +199,9 @@ DWORD WINAPI StudentProcess::MsgReceiveThread(LPVOID lpParameter) {
                 string OptionB;
                 string OptionC;
                 string OptionD;
-
                 Message::ToChoice(TempMessage, Ques, OptionA, OptionB, OptionC, OptionD);
-
                 emit pProcess->RecvChoice(QString::fromStdString(Ques), QString::fromStdString(OptionA), QString::fromStdString(OptionB), QString::fromStdString(OptionC), QString::fromStdString(OptionD));
             }
-
             //如果是音频帧消息，放入待播放音频队列中
             else if (Type == MSG_AUDIO) {
                 qDebug() << "SP: recieved audio frame message " << TempMessage.Size << " bytes";
@@ -299,7 +220,7 @@ DWORD WINAPI StudentProcess::MsgReceiveThread(LPVOID lpParameter) {
                 //发出收到图像信号，要求界面更新
                 emit pProcess->RecvScreen(qImg);
             }
-            //6-19，如果是即将下课的消息，发送发送注意力消息的信号
+            //如果是即将下课的消息，发送发送注意力消息的信号
             else if (Type == MSG_SOONEXIT)
             {
                 emit pProcess->RecvSoonExit();

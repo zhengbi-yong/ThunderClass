@@ -18,17 +18,7 @@
 //Server类的静态成员，目标是在Open函数不指定端口号的时候就默认打开4000端口。因为Open函数的参数默认值在h文件中，它只能用常数或者静态成员做默认值
 unsigned int Server:: DEFAULT_PORT = 4000;
 
-/*************************************************************************
-【函数名称】Server::Serve
-【函数功能】构造函数
-【参数】无
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-
-*************************************************************************/
+/*构造函数。*/
 Server::Server():IsOpend(m_bIsListening),m_uPort(DEFAULT_PORT),m_bIsListening(false) {
     //服务器类的构造函数，使用初始化列表初始化
     //m_uPort是表示端口的私有成员
@@ -38,16 +28,7 @@ Server::Server():IsOpend(m_bIsListening),m_uPort(DEFAULT_PORT),m_bIsListening(fa
 }
 
 
-/*************************************************************************
-【函数名称】Server::~Serve
-【函数功能】析构函数
-【参数】无
-【返回值】析构函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*析构函数。*/
 Server::~Server()
 {
     //关闭已打开的端口，断开全部连接
@@ -55,49 +36,28 @@ Server::~Server()
 }
 
 
-/*************************************************************************
-【函数名称】Server::GetAndRemoveFirstMessage
-【函数功能】从全部收到的消息中，拿出第一个未访问过的，并删除
-【参数】参数，2020-05-10范静涛修改，pair是stl中的一种类型，first表示当前Connection的index，second表示消息。
-【返回值】ture为队列中有未访问的消息
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*从全部收到的消息中，拿出第一个未访问过的，并删除。*/
 bool Server::GetAndRemoveFirstMessage(pair<unsigned int, Message> & aMessagePair) {
     //消息队列不为空的话
-    //2020-05-23 由范静涛新增了lock
     Connection::RecvMsgMutex.lock();
     if (!m_Messages.empty()) {
         //用第一条消息赋值给Message
         aMessagePair = m_Messages.front();
         //删除第一条消息
         m_Messages.pop();
-        //2020-05-23 由范静涛新增了unlock
         Connection::RecvMsgMutex.unlock();
         //返回true表示Message是有效的
         return true;
     }
     //消息队列为空
     else {
-        //2020-05-23 由范静涛新增了unlock
         Connection::RecvMsgMutex.unlock();
         //返回false表示Message是无效的
         return false;
     }            
 }
 
-/*************************************************************************
-【函数名称】Server::SendTo
-【函数功能】向指定客户端连接发送消息
-【参数】均为入口参数，一次为客户端对应的connection连接号，要发送的消息
-【返回值】ture为指定连接处于通信状态，可以发送
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*向指定客户端连接发送消息。*/
 bool Server::SendTo(unsigned int idx, const Message& aMessage) {
     //如果不存在idx指定的客户端，或者指定客户端处于断开的状态（Connection对象的IsActive是false）
     if (idx >= m_Connections.size() || !m_Connections[idx]->IsConnected()) {
@@ -113,16 +73,7 @@ bool Server::SendTo(unsigned int idx, const Message& aMessage) {
     }
 }
 
-/*************************************************************************
-【函数名称】Server::SendToAll
-【函数功能】群发消息
-【参数】入口参数，要发送的消息
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*群发消息。*/
 void Server::SendToAll(const Message& aMessage){
     //遍历每个连接，依次发送出去
     for (unsigned int i  = 0; i < m_Connections.size(); i++) {
@@ -131,16 +82,7 @@ void Server::SendToAll(const Message& aMessage){
     }
 }
 
-/*************************************************************************
-【函数名称】Server::Open
-【函数功能】打开端口监听，开始等待客户端连接
-【参数】入口参数，要打开的端口号
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*打开端口监听，开始等待客户端连接。*/
 void Server::Open(unsigned int Port) {
     //如果端口已经打开了，就直接返回。重复开一个端口，会产生错误的
     if (m_bIsListening) {
@@ -155,7 +97,7 @@ void Server::Open(unsigned int Port) {
     addr_svr.sin_port = ::htons(m_uPort);
     addr_svr.sin_addr.S_un.S_addr = ADDR_ANY;
     memset(buf_ip, 0, IP_BUF_SIZE);
-    //
+
     ret_val = ::WSAStartup(m_winsock_ver, &m_wsa_data);
     if (ret_val != 0)
     {
@@ -168,14 +110,12 @@ void Server::Open(unsigned int Port) {
         throw(runtime_error("Failed to create server socket!Error code: "
             + to_string(WSAGetLastError())));
     }
-    //
     ret_val = ::bind(m_SocketServer, (SOCKADDR*)&addr_svr, addr_len);
     if (ret_val != 0)
     {
         throw(runtime_error("Failed to bind server socket!Error code: "
             + to_string(WSAGetLastError())));
     }
-    //
     ret_val = ::listen(m_SocketServer, SOMAXCONN);
     if (ret_val == SOCKET_ERROR)
     {
@@ -198,16 +138,7 @@ void Server::Open(unsigned int Port) {
     ::CloseHandle(h_thread);                                 
 }
 
-/*************************************************************************
-【函数名称】Server::Close
-【函数功能】关闭端口监听，停止等待客户端连接
-【参数】无
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*关闭端口监听，停止等待客户端连接。*/
 void Server::Close(){
     //不在等待（监听）状态下，直接返回，不会执行任何实质操作
     //请大家回顾下Server的析构，它就是调用了Close。如果没有打开端口，就没有连接过，也不需要任何清理。
@@ -230,16 +161,7 @@ void Server::Close(){
     WSACleanup();
 }
 
-/*************************************************************************
-【函数名称】Server::IsConnected
-【函数功能】返回指定客户端连接能否通信（是否处于连接状态）
-【参数】入口参数，表示客户端连接索引号（从0开始）
-【返回值】true表示可以通信，false表示不存在这一连接或已断开/无法通信
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*返回指定客户端连接能否通信（是否处于连接状态）。*/
 bool Server::IsConnected(unsigned int idx) {
     if (idx >= m_Connections.size()) {
         return false;
@@ -247,16 +169,7 @@ bool Server::IsConnected(unsigned int idx) {
     return m_Connections[idx]->IsConnected();
 }
 
-/*************************************************************************
-【函数名称】Server::DisConnected
-【函数功能】断开指定客户端连接
-【参数】入口参数，表示客户端连接索引号（从0开始）
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*断开指定客户端连接。*/
 void Server::DisConnect(unsigned int idx) {
     if (idx >= m_Connections.size()) {
         return;
@@ -264,16 +177,7 @@ void Server::DisConnect(unsigned int idx) {
     m_Connections[idx]->Disconnect();
 }
 
-/*************************************************************************
-【函数名称】Server::GetAvgToSendCount
-【函数功能】获得全部活动连接的待发送消息数量均值
-【参数】无）
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-05-10
-【更改记录】
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
-//获得全部活动连接的待发送消息数量均值
+/*获得全部活动连接的待发送消息数量均值。*/
 unsigned int Server::GetAvgToSendCount() {
     //全部待发送消息总和
     unsigned int ToSendCount = 0;
@@ -287,16 +191,7 @@ unsigned int Server::GetAvgToSendCount() {
 }
 
 
-/*************************************************************************
-【函数名称】Server::WaitThread
-【函数功能】等待连接线程函数
-【参数】入口参数，表示线程所属Server的指针
-【返回值】无意义，仅函数形式需要
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*等待连接线程函数。*/
 DWORD WINAPI Server::WaitThread(LPVOID lpParameter){
     //实际等待客户端连接的线程函数，基本来自于原始代码，稍作改动
     //Open被调用至Close被调用的中间时间段上，这个函数只运行一次，所以内部有循环，使用线程是考虑与程序的主线程（黑框也有主线程）分离。
