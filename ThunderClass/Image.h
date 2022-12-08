@@ -30,9 +30,7 @@
 using namespace std;
 
 /*************************************************************************
-【类名】Image
-【功能】操作图像对象
-【接口说明】
+操作图像对象
     构造函数Image构造指定宽高或默认100像素×100像素的全黑色
     析构函数~Image
     拷贝构造函数Image(const Image& anImage);
@@ -49,80 +47,55 @@ using namespace std;
     常引用数据成员Width表示以像素为单位的图像宽度
     常引用数据成员Height表示以像素为单位的高度
     常引用数据成员BytesPerLine表示每行图像占了多少字节（4字节整数倍）
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和结构功能优化，添加了存储为jpg和导出jpg数据的功能
-    2020-05-15 由范静涛增加注释
 *************************************************************************/
 class Image{
 public:
     //构造函数Image构造指定宽高或默认100像素×100像素的全黑色
     Image(unsigned int W = 100, unsigned int H = 100);
-
     //析构函数~Image
     ~Image();
-
     //拷贝构造函数Image(const Image& anImage);
     Image(const Image& anImage);
-
     //赋值运算符函数Image& operator= (const Image& anImage);
     Image& operator= (const Image& anImage);
-
     //异或运算符函数Image operator^ (const Image& anImage);
     Image operator^ (const Image& anImage) const;
-
     //函数ScanLine返回指定行的原始数据区指针
     unsigned char* ScanLine(unsigned int y);
-
     //函数GetPixel返回指定位置的像素值
     Pixel GetPixel(unsigned int x, unsigned int y) const;
-
     //函数SetPixel设定指定位置的像素值
     void SetPixel(unsigned int x, unsigned int y, const Pixel& aPixel);
-
     //函数LoadFromFile读取本类自定义的图像格式文件
     void LoadFromFile(const string& FileName);
-
     //函数SaveToFile保存图像到本类自定义的图像格式文件
     void SaveToFile(const string& FileName) const;
-
     //函数SaveToJpgFile保存图像到Jpg格式图像文件
     void SaveToJpgFile(const string& FileName) const;
-
     //函数SaveToJpgData保存图像到Jpg原始数据到指定内存区域
     void SaveToJpgData(char** ppBuffer, unsigned int* puLength) const;
-
     //友元函数CapScreenTo(Image& img)抓取当前屏幕到指定图像对象
     friend void CapScreenTo(Image& img);
-
     //常引用数据成员Width表示以像素为单位的图像宽度
     const unsigned int& Width;
-
     //常引用数据成员Height表示以像素为单位的高度
     const unsigned int& Height;
-
     //常引用数据成员BytesPerLine表示每行图像占了多少字节（4字节整数倍）
     const unsigned int& BytesPerLine;
 
 private:
     //获取Jpg编码器
     int GetJpgEncoderClassID(CLSID* pClassID) const;
-
     //静态私有成员，一共有多少个Image的对象
     static unsigned int m_uImageCount;
-
     //图像宽度
     unsigned int m_uiWidth;
-
     //图像高度
     unsigned int m_uiHeight;
-
     //用一维数组模拟二维存储结构
     unsigned char* m_ucData;
-
     //每行像素占用多少字节（4字节整数倍）
     unsigned int m_uiBytePerLine;
-
     //GDI+ 初始化和结束用的，不用理解
     Gdiplus::GdiplusStartupInput m_gdiplusStartupInput;
     ULONG_PTR m_gdiplusToken;

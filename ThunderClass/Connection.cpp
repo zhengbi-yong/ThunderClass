@@ -20,24 +20,14 @@ using namespace std;
 
 //Connection类的静态常成员，目标是每个Connection对象收消息时的缓冲区大小是固定不变的
 const unsigned int Connection::MSG_BUF_SIZE = 1024;
-
-//2020-05-23 由范静涛增加了收消息队列互斥公有静态数据成员RecvMsgMutex，实现Server和全部Connection对象的有序访问
+//范静涛增加了收消息队列互斥公有静态数据成员RecvMsgMutex，实现Server和全部Connection对象的有序访问
 mutex Connection::RecvMsgMutex;
-//2020-05-23 RecvMsgMutex 增加结束
 
-/*************************************************************************
-【函数名称】Connection::Connection
-【函数功能】构造函数
-【参数】
-     第1参数，来自于Server提供的、已经连上的SocketClient（不需深入理解，它就是一个连接的标识，和身份证一样）
-     第2参数，2020-05-10范静涛添加，表示此Connection是Server创建第几个，最早创建的是0号Connections对象
-     第3参数，2020-05-10范静涛修改，pair是stl中的一种类型，first表示当前Connection的index，second表示消息。此参数是一个pair的队列的引用，其本体来自Server
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数接口修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*构造函数。
+第1参数，来自于Server提供的、已经连上的SocketClient（不需深入理解，它就是一个连接的标识，和身份证一样）
+第2参数，范静涛添加，表示此Connection是Server创建第几个，最早创建的是0号Connections对象
+第3参数，范静涛修改，pair是stl中的一种类型，first表示当前Connection的index，second表示消息。此参数是一个pair的队列的引用，其本体来自Server
+*/
 Connection::Connection(SOCKET SocketClient, unsigned int Index, queue<pair<unsigned int, Message> >& OwnerMessages):m_Messages(OwnerMessages){
     //用形参初始化私有数据成员
     this->SocketClient = SocketClient;
@@ -58,31 +48,13 @@ Connection::Connection(SOCKET SocketClient, unsigned int Index, queue<pair<unsig
     }
 }
 
-/*************************************************************************
-【函数名称】Connection::~Connection
-【函数功能】析构函数
-【参数】无
-【返回值】析构函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*析构函数。*/
 Connection::~Connection() {
     //主动断开与客户端连接
     Disconnect();
 }
 
-/*************************************************************************
-【函数名称】Connection::Disconnect
-【函数功能】断开连接
-【参数】无
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和结构优化
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*断开连接。*/
 void Connection::Disconnect() {
     //收发线程在中断与客户端的socket连接时，会修改m_bIsConnected为false
     if (m_bIsConnected == false) {
@@ -107,52 +79,26 @@ void Connection::Disconnect() {
     m_ToSend = queue<Message>();
 }
 
-/*************************************************************************
-【函数名称】Connection::Send
-【函数功能】发送消息
-【参数】aMessage,入口参数，表示要发送的通用消息
-【返回值】ture表示已放入待发队列尾，false表示放入失败
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数形式
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*发送消息。aMessage,入口参数，表示要发送的通用消息。*/
 bool Connection::Send(const Message& aMessage){
     //只有在正与客户端连接中，才会执行实际的发送操作
     if (m_bIsConnected) {
         //ToSend是一个待发送消息的队列，插进去即可。因为ConnectionThread会一直检查这个队列里是否有消息，有就发送
-        //2020-05-23 由范静涛增加了lock和unlock代码
+        //范静涛增加了lock和unlock代码
         m_SendMsgMutex.lock();
         m_ToSend.push(aMessage);
         m_SendMsgMutex.unlock();
-        //2020-05-23 lock和unlock代码 增加结束
         return true;
     }
     return false;
 }
 
-/*************************************************************************
-【函数名称】Connection::IsConnected
-【函数功能】获取连接状态
-【参数】无
-【返回值】ture已连接，false表示已断开
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*获取连接状态。*/
 bool Connection::IsConnected(){
     return m_bIsConnected;
 }
 
-/*************************************************************************
-【函数名称】Connection::ToSendCount
-【函数功能】获取还有多少个没发送出去的消息
-【参数】无
-【返回值】没发送出去的消息的数量
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-10
-【更改记录】
-*************************************************************************/
+/*获取还有多少个没发送出去的消息。*/
 unsigned int Connection::ToSendCount(){
     if (!m_bIsConnected) {
         return 0;
@@ -162,16 +108,7 @@ unsigned int Connection::ToSendCount(){
     }
 }
 
-/*************************************************************************
-【函数名称】Connection::ConnectionThread
-【函数功能】通信线程函数
-【参数】aMessage,入口参数，表示要发送的通用消息
-【返回值】ture表示已放入待发队列尾，false表示放入失败
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-4-24
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改和参数形式
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*通信线程函数。aMessage,入口参数，表示要发送的通用消息。*/
 DWORD WINAPI Connection::ConnectionThread(LPVOID lpParameter){
     //实参是Connection*，所以可以强制类型转换，代表当前线程所属的connection
     Connection* Cnct = (Connection*)lpParameter;
@@ -183,28 +120,25 @@ DWORD WINAPI Connection::ConnectionThread(LPVOID lpParameter){
     int RecvCount = 0;
     //发送的字节数，小于等于0表示断开或出错
     int SendCount = 0;
-
     //空闲消息，用于维持消息先收后发、一收一发的循环，只要不出错、客户端没断开，就会一直转啊转~~~~
     Message MsgIDLE = Message::MakeIdleMsg();
     //退出消息，用于通知业务流程类已经断开
     Message MsgEXIT = Message::MakeExitMsg();
     //临时消息，用于存储接收到的数据
     Message* Msg = new Message();
-
     //只要处于连接状态，就始终执行循环
     while (Cnct->m_bIsConnected) {
+
         //Step1,接收数据，最长MSG_BUF_SIZE，到buf_msg
         RecvCount = ::recv(Cnct->SocketClient, buf_msg, MSG_BUF_SIZE, 0);
 
-        //Step2, 判断接收是否出错。RecvCount <= 0,代表接收出错或已对方已断开
+        //Step2,判断接收是否出错。RecvCount <= 0,代表接收出错或已对方已断开
         if (RecvCount <= 0) {
             //跳出循环就断开连接
-            //跳出循环前，向Server消息队列中插入一个pair<当前Connection的Imdex，退出消息>
-            //2020-05-23 新增以下的lock和unlock代码
+            //跳出循环前，向Server消息队列中插入一个pair<当前Connection的Index，退出消息>
             RecvMsgMutex.lock();
             Cnct->m_Messages.push(pair<unsigned int, Message>(Cnct->m_uIndex, MsgEXIT));
             RecvMsgMutex.unlock();
-            //2020-05-23 lock和unlock 新增结束
             break;
         }
 
@@ -218,11 +152,9 @@ DWORD WINAPI Connection::ConnectionThread(LPVOID lpParameter){
             // 如果IsMessageFinished为false，RemInBufCount一定为0;
             if (IsMsgValid) {
                 //添加完整消息到接收消息的队列
-                //2020-05-23 新增以下的lock和unlock代码
                 RecvMsgMutex.lock();
                 Cnct->m_Messages.push(pair<unsigned int, Message>(Cnct->m_uIndex, *Msg));
                 RecvMsgMutex.unlock();
-                //2020-05-23 lock和unlock 新增结束
                 //换个新消息等待下次使用
                 delete Msg;
                 Msg = new Message();
@@ -236,7 +168,7 @@ DWORD WINAPI Connection::ConnectionThread(LPVOID lpParameter){
         }while(ToAppendCount != 0); //要追加的长度不为0，则再追加
 
         //Step4 待发队列有消息就发，没有就发个空闲消息，维持一收一发机制
-        //2020-05-23 由范静涛增加了lock和unlock代码
+        //范静涛增加了lock和unlock代码
         Cnct->m_SendMsgMutex.lock();
         if (!Cnct->m_ToSend.empty()){
             //注意，ToSend是通用消息队列，不关注消息里是什么类型的内容
@@ -249,17 +181,14 @@ DWORD WINAPI Connection::ConnectionThread(LPVOID lpParameter){
             SendCount = send(Cnct->SocketClient, (const char*)MsgIDLE.Data, MsgIDLE.Size, 0);
         }
         Cnct->m_SendMsgMutex.unlock();
-        //2020-05-23 lock和unlock代码 增加结束
 
         //step5 检查发送是否成功
         if (SendCount <= 0) {
             //跳出循环就断开连接
             //跳出循环前，向Server消息队列中插入一个pair<当前Connection的Imdex，退出消息>
-            //2020-05-23 新增以下的lock和unlock代码
             RecvMsgMutex.lock();
             Cnct->m_Messages.push(pair<unsigned int, Message>(Cnct->m_uIndex, MsgEXIT));
             RecvMsgMutex.unlock();
-            //2020-05-23 lock和unlock 新增结束
             break;
         }
     };

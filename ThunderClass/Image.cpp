@@ -28,16 +28,7 @@
 //Image类私有静态计数器，表示当前一共有多少个Image对象，用于GDI+初始化和释放
 unsigned int Image::m_uImageCount = 0;
 
-/*************************************************************************
-【函数名称】Image::Image
-【函数功能】构造函数，构造指定宽高的全黑色图像
-【参数】全部为入口参数，依次为像素为单位的图像宽度和高度，默认参数值均为100
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*构造函数，构造指定宽高的全黑色图像。*/
 Image::Image(unsigned int W, unsigned int H) : Width(m_uiWidth), Height(m_uiHeight), BytesPerLine(m_uiBytePerLine) {
     //不合理的宽度或高度，抛出异常
     if (W == 0 || H == 0) {
@@ -61,16 +52,7 @@ Image::Image(unsigned int W, unsigned int H) : Width(m_uiWidth), Height(m_uiHeig
     m_uImageCount++;
 }
 
-/*************************************************************************
-【函数名称】Image::~Image
-【函数功能】析构函数
-【参数】无
-【返回值】析构函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*析构函数。*/
 Image::~Image() {
     //释放数据区
     delete[] m_ucData;
@@ -82,36 +64,18 @@ Image::~Image() {
     }
 }
 
-/*************************************************************************
-【函数名称】Image::Image(const Image& anImage)
-【函数功能】拷贝函数
-【参数】入口参数anImage，表示源图像对象
-【返回值】构造函数不可有返回值
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*拷贝函数。入口参数anImage，表示源图像对象。*/
 Image::Image(const Image& anImage) : Width(m_uiWidth), Height(m_uiHeight), BytesPerLine(m_uiBytePerLine) {
     m_uiWidth = anImage.m_uiWidth;
     m_uiHeight = anImage.m_uiHeight;
     m_uiBytePerLine = anImage.m_uiBytePerLine;
     m_ucData = new unsigned char[m_uiBytePerLine * m_uiHeight];
     memcpy(m_ucData, anImage.m_ucData, m_uiBytePerLine * m_uiHeight);
-    //计数器自减
+    //计数器自加
     m_uImageCount++;
 }
 
-/*************************************************************************
-【函数名称】Image::opertor=(const Image& anImage)
-【函数功能】赋值运算符函数
-【参数】入口参数anImage，表示源图像对象
-【返回值】被赋值对象的引用
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*赋值运算符函数。入口参数anImage，表示源图像对象。*/
 Image& Image::operator = (const Image & anImage) {
     if (this != &anImage) {
         delete[] m_ucData;
@@ -124,15 +88,7 @@ Image& Image::operator = (const Image & anImage) {
     return *this;
 }
 
-/*************************************************************************
-【函数名称】Image::opertor^(const Image& anImage)
-【函数功能】异或运算符函数
-【参数】入口参数anImage，表示参与异或的第二个图像对象
-【返回值】异或结果产生的新图像对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-10 取消此函数注释
-【更改记录】
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*异或运算符函数。入口参数anImage，表示参与异或的第二个图像对象。*/
 Image Image::operator^ (const Image& anImage) const {
     //两幅图像尺寸不一致，无法异或，抛出异常
     if (m_uiWidth  != anImage.m_uiWidth || m_uiHeight != anImage.m_uiHeight) {
@@ -148,16 +104,7 @@ Image Image::operator^ (const Image& anImage) const {
     return Ret;
 }
 
-/*************************************************************************
-【函数名称】Image::ScanLine
-【函数功能】返回指定行的数据区指针
-【参数】入口参数表示行号，最上行为0行
-【返回值】指定行的数据区指针
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*返回指定行的数据区指针。入口参数表示行号，最上行为0行。*/
 unsigned char* Image::ScanLine(unsigned int y){
     //超范围行号，抛出异常
     if (y >= Height) {
@@ -166,16 +113,7 @@ unsigned char* Image::ScanLine(unsigned int y){
     return m_ucData + m_uiBytePerLine * y;
 }
 
-/*************************************************************************
-【函数名称】Image::GetPixel
-【函数功能】返回指定位置的像素对象
-【参数】入口参数，依次为x坐标和y坐标
-【返回值】指定位置的像素对象
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*返回指定位置的像素对象。入口参数，依次为x坐标和y坐标。*/
 Pixel Image::GetPixel(unsigned int x, unsigned int y) const {
     //坐标值超范围，抛出异常
     if (x >= Width || y >= Height) {
@@ -188,16 +126,7 @@ Pixel Image::GetPixel(unsigned int x, unsigned int y) const {
     );
 }
 
-/*************************************************************************
-【函数名称】Image::SetPixel
-【函数功能】设定指定位置的像素对象
-【参数】入口参数，依次为x坐标、y坐标和像素对象
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*设定指定位置的像素对象。入口参数，依次为x坐标、y坐标和像素对象。*/
 void Image::SetPixel(unsigned int x, unsigned int y, const Pixel& aPixel) {
     //坐标值超范围，抛出异常
     if (x >= Width || y >= Height) {
@@ -208,23 +137,13 @@ void Image::SetPixel(unsigned int x, unsigned int y, const Pixel& aPixel) {
     m_ucData[m_uiBytePerLine * y + 3 * x + 0] = aPixel.B;
 }
 
-/*************************************************************************
-【函数名称】Image::LoadFromFile
-【函数功能】读取本类自定义格式文件到图像对象
-【参数】入口参数，文件名字符串
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*读取本类自定义格式文件到图像对象。入口参数，文件名字符串。*/
 void Image::LoadFromFile(const string& FileName) {
     //打开文件
     ifstream inFile(FileName.c_str(), ios::in | ios::binary);
     if (!inFile) {
         throw "Cann't open file";
     }
-
     //读取宽度和高度
     inFile.read((char*)&m_uiWidth, sizeof(m_uiWidth));
     inFile.read((char*)(&m_uiHeight), sizeof(m_uiHeight));
@@ -242,16 +161,7 @@ void Image::LoadFromFile(const string& FileName) {
     inFile.close();
 }
 
-/*************************************************************************
-【函数名称】Image::SaveToFile
-【函数功能】保存到本类自定义格式文件
-【参数】入口参数，文件名字符串
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-    2020-05-10 由范静涛做了命名规范化修改
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*保存到本类自定义格式文件。入口参数，文件名字符串。*/
 void Image::SaveToFile(const string& FileName) const {
     //打开文件
     ofstream outFile(FileName.c_str(), ios::out | ios::binary);
@@ -264,16 +174,7 @@ void Image::SaveToFile(const string& FileName) const {
     outFile.close();
 }
 
-/*************************************************************************
-【函数名称】Image::SaveToJpgFile
-【函数功能】保存到jpg格式文件
-【参数】入口参数，文件名字符串
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-10
-【更改记录】
-    2020-05-15 由范静涛增加注释
-【特别提示】此函数稍作修改就可以保存为bmp格式图像文件
-*************************************************************************/
+/*保存到jpg格式文件。入口参数，文件名字符串。*/
 void Image::SaveToJpgFile(const string& FileName) const{
     //设定图像质量（100最高），此值越小图像文件尺寸越小
     int quality = 50;
@@ -304,18 +205,9 @@ void Image::SaveToJpgFile(const string& FileName) const{
     delete pBitmap;
 }
 
-/*************************************************************************
-【函数名称】Image::SaveToJpgData
-【函数功能】保存到jpg
-【参数】均为出口参数，分别表示指向jpg内存数据区的指针的指针，指向jpg数据大小的指针
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-10
-【更改记录】
-    2020-05-15 由范静涛增加注释
-【特别提示】
-    pBufer指向的内存空间，必须有此函数调用者手工释放，如SaveToJpgData(&a,&b),则需要delete[] a;
-    此函数可与异或操作符连用，获得高质量的网络图像传输
-*************************************************************************/
+/*保存到jpg。均为出口参数，分别表示指向jpg内存数据区的指针的指针，指向jpg数据大小的指针。
+  pBufer指向的内存空间，必须有此函数调用者手工释放，如SaveToJpgData(&a,&b),则需要delete[] a;
+  此函数可与异或操作符连用，获得高质量的网络图像传输。相当于只传输不同的部分。*/
 void Image::SaveToJpgData(char** ppBuffer, unsigned int* puLength) const{
     //设定图像质量（100最高），此值越小图像数据尺寸越小
     //此参数调低是为了方便传输，但如果和异或函数结合，求连续两幅图像的差异，此参数可调高，因为差异图像大面积为黑色仍然能获得小数据量
@@ -352,32 +244,19 @@ void Image::SaveToJpgData(char** ppBuffer, unsigned int* puLength) const{
     GlobalFree(hStreamMem);
 }
 
-/*************************************************************************
-【函数名称】Image::GetJpgEncoderClassID
-【函数功能】获取jpg编码器类ID
-【参数】出口参数，类编码器ID指针
-【返回值】-1为找不到jpg编码器，其他值为编码器ID在系统所有编码器中的索引值（第几个编码器）
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-10
-【更改记录】
-    2020-05-15 由范静涛增加注释
-*************************************************************************/
+/*获取jpg编码器类ID。出口参数，类编码器ID指针。*/
 int Image::GetJpgEncoderClassID(CLSID* pClassID) const {
     //此函数太过细节，不需掌握和理解
     unsigned int EncoderCount = 0;
     unsigned int EncoderArraySize = 0;
-
     Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
-
     Gdiplus::GetImageEncodersSize(&EncoderCount, &EncoderArraySize);
     if(EncoderArraySize == 0)
         return -1;
-
     pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(EncoderArraySize));
     if(pImageCodecInfo == NULL)
         return -1;
-
     Gdiplus::GetImageEncoders(EncoderCount, EncoderArraySize, pImageCodecInfo);
-
     for(unsigned int j = 0; j < EncoderCount; ++j)
     {
         if(std::wcscmp(pImageCodecInfo[j].MimeType, L"image/jpeg") == 0 )
@@ -387,23 +266,14 @@ int Image::GetJpgEncoderClassID(CLSID* pClassID) const {
             return j;
         }
     }
-
     free(pImageCodecInfo);
     return -1;
 }
 
-/*************************************************************************
-【函数名称】CapScreenTo
-【函数功能】捕获屏幕图像
-【参数】出口参数，存储屏幕截图的Image对象的引用
-【返回值】无
-【开发者及日期】范静涛(fanjingtao@tsinghua.edu.cn) 2020-5-3
-【更改记录】
-*************************************************************************/
+/*捕获屏幕图像。出口参数，存储屏幕截图的Image对象的引用。*/
 void CapScreenTo(Image& img) {
     // 想象以下，你去银行取钱，银行不允许你自己进入金库的
     // 只能是柜员进去取，再转交给你
-
     // 获得一个代表显示器的标识符DisplayDC
     // 金库
     HDC DisplayDC = CreateDC(L"DISPLAY", 0, 0, 0);
@@ -413,7 +283,6 @@ void CapScreenTo(Image& img) {
     // 获得显示器垂直像素数——多高
     // 金库里一共有多少捆钱
     unsigned int Height = GetDeviceCaps(DisplayDC, VERTRES);
-
     // 物理显示器是不允许程序直接读取上面的数据
     // 所以我们申请在自己程序里获得一个代表显示器的标识符MemDispDC
     // 柜员，可以进入金库的柜员
@@ -430,7 +299,6 @@ void CapScreenTo(Image& img) {
     // 拷贝到标识符 MemDispDC代表的内容里，也就是放在hBitmap里
     // 柜员拿走把金库里所有的钱都复印了一遍，装在袋子里
     BitBlt(MemDispDC, 0, 0, Width, Height, DisplayDC, 0, 0, SRCCOPY);
-
     // 取钱的人，带了一个纸箱，把纸箱信息写在bmiHeader上
     BITMAPINFOHEADER bmiHeader;
     bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -444,13 +312,11 @@ void CapScreenTo(Image& img) {
     bmiHeader.biYPelsPerMeter = 0;
     bmiHeader.biClrUsed = 0;
     bmiHeader.biClrImportant = 0;
-
     // 取钱的人有个小怪癖， 每捆钱必须是4的整数倍张，不是的话，后面补白纸
     unsigned int BytesPerLine = bmiHeader.biBitCount * Width / 8;
     if (BytesPerLine % 4 != 0) {
         BytesPerLine += (4 - BytesPerLine % 4);
     }
-
     // 申请内存保存位图数据
     // 准备好了收钱的纸箱
     unsigned char* Data = new unsigned char[BytesPerLine * Height];
@@ -460,20 +326,16 @@ void CapScreenTo(Image& img) {
               (LPBITMAPINFO)&bmiHeader, DIB_RGB_COLORS);
     // 在这个过程中，柜员把袋子上面的钱，放到了箱子下面
     // 所以，我们拿到的图像数据，屏幕最上面的一行，反倒在数据的最后一行
-
     img.m_uiWidth = Width;
     img.m_uiHeight = Height;
     img.m_uiBytePerLine = BytesPerLine;
     delete[] img.m_ucData;
     img.m_ucData = new unsigned char[img.m_uiBytePerLine * img.m_uiHeight];
-
     unsigned int Real_y;
-
     for (unsigned int y = 0; y < img.m_uiHeight; y++) {
         Real_y = img.m_uiHeight - y - 1;
         memcpy(img.m_ucData + img.m_uiBytePerLine * y, Data + BytesPerLine * Real_y, img.m_uiBytePerLine);
     }
-
     // 钱袋子消失了
     DeleteObject(hBitMap);
     // 柜员消失了
